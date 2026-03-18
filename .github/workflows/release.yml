@@ -1,0 +1,42 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - target: bun-darwin-arm64
+            name: dj-claude-darwin-arm64
+          - target: bun-darwin-x64
+            name: dj-claude-darwin-x64
+          - target: bun-linux-x64
+            name: dj-claude-linux-x64
+          - target: bun-linux-arm64
+            name: dj-claude-linux-arm64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun build --compile --minify --target=${{ matrix.target }} src/index.ts --outfile ${{ matrix.name }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+          mkdir -p dist
+          for d in dj-claude-*/; do cp "$d"* dist/; done
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

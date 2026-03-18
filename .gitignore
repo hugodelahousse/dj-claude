@@ -1,0 +1,24 @@
+node_modules/
+build/
+*.js.map
+*.d.ts.map
+
+# Tokens (should be in ~/.dj-claude/ anyway, but just in case)
+tokens.json
+spotify-config.json
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Claude Code (user-specific config)
+.claude/
+
+# Secrets (should be in ~/.dj-claude/ anyway, but just in case)
+lastfm.json
+
+# Build artifacts
+*.tsbuildinfo
