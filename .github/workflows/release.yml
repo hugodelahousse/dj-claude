@@ -18,8 +18,9 @@ jobs:
         id: changesets
         with:
           version: bunx @changesets/cli version
+          commitMode: github-api
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
 
       - name: Check if release needed
         if: steps.changesets.outputs.hasChangesets == 'false'
