@@ -1,5 +1,11 @@
 # dj-claude
 
+## 0.1.2
+
+### Patch Changes
+
+- b2e7ffc: Change OAuth callback port from 8888 to 45981 to avoid conflicts
+
 ## 0.1.1
 
 ### Patch Changes
