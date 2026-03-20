@@ -87,8 +87,10 @@ export async function runAuth() {
   console.error("Auth setup complete!");
 }
 
-// Run when executed directly
-runAuth().catch((err) => {
-  console.error(`\nAuth failed: ${err.message}`);
-  process.exit(1);
-});
+// Run when executed directly (bun run src/auth/cli.ts)
+if (import.meta.main) {
+  runAuth().catch((err) => {
+    console.error(`\nAuth failed: ${err.message}`);
+    process.exit(1);
+  });
+}
