@@ -72,8 +72,6 @@ export const SavedTracksResponseSchema = z.object({
 });
 export type SavedTracksResponse = z.infer<typeof SavedTracksResponseSchema>;
 
-export const SavedTracksContainsSchema = z.array(z.boolean());
-
 export const PlaylistSchema = z.object({
   id: z.string(),
   name: z.string(),
