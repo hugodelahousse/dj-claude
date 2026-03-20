@@ -109,35 +109,6 @@ export function registerPlaybackTools(server: McpServer, client: SpotifyClient) 
     },
   );
 
-  registerTool(server, "get_queue",
-    "Get the current playback queue — shows what's playing now and what's coming up next.",
-    {},
-    async () => {
-      const queue = await client.get("/me/player/queue", QueueResponseSchema);
-      if (!queue) {
-        return textResult("No active playback session. Make sure Spotify is open on a device.");
-      }
-
-      const lines: string[] = [];
-      if (queue.currently_playing) {
-        const t = queue.currently_playing;
-        lines.push(`Now playing: "${t.name}" by ${t.artists.map((a) => a.name).join(", ")} — ${t.uri}`);
-      } else {
-        lines.push("Nothing is currently playing.");
-      }
-
-      lines.push("");
-      if (queue.queue.length === 0) {
-        lines.push("Queue is empty.");
-      } else {
-        lines.push(`Up next (${queue.queue.length} tracks):`);
-        lines.push(...queue.queue.map(formatQueueTrack));
-      }
-
-      return textResult(lines.join("\n"));
-    },
-  );
-
   registerTool(server, "add_to_queue",
     "Add one or more tracks to the playback queue. Skips duplicates — won't add tracks already playing or already in the queue.",
     {
