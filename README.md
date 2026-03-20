@@ -12,6 +12,24 @@ dj-claude auth                      # Log in with Spotify
 claude mcp add dj-claude -- dj-claude  # Register as MCP server
 ```
 
+### Using your own Spotify app
+
+By default dj-claude uses a shared Spotify client ID. To use your own:
+
+1. Create an app at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Set the redirect URI to `http://127.0.0.1:45981/callback`
+3. Set the `SPOTIFY_CLIENT_ID` environment variable before running auth:
+
+```sh
+SPOTIFY_CLIENT_ID=your_client_id dj-claude auth
+```
+
+To pass it through when running as an MCP server:
+
+```sh
+claude mcp add dj-claude -e SPOTIFY_CLIENT_ID=your_client_id -- dj-claude
+```
+
 ## Examples
 
 Once set up, just talk to Claude:

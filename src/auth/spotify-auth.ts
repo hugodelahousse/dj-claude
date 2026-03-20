@@ -2,7 +2,8 @@ import { createHash, randomBytes } from "node:crypto";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
-export const CLIENT_ID = "53967543970545da9be299df52e94005";
+const DEFAULT_CLIENT_ID = "53967543970545da9be299df52e94005";
+export const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || DEFAULT_CLIENT_ID;
 
 export const SCOPES = [
   "user-read-playback-state",
