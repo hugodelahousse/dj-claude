@@ -7,7 +7,7 @@ import {
 } from "./spotify-auth.js";
 import { saveTokens } from "./token-store.js";
 
-const REDIRECT_URI = "http://127.0.0.1:8888/callback";
+const REDIRECT_URI = "http://127.0.0.1:45981/callback";
 const AUTH_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 export async function runAuth() {
@@ -30,12 +30,12 @@ export async function runAuth() {
     let httpServer: ReturnType<typeof Bun.serve>;
 
     const timeout = setTimeout(() => {
-      httpServer?.stop();
+      httpServer?.stop(true);
       reject(new Error("Authorization timed out after 5 minutes. Please try again."));
     }, AUTH_TIMEOUT_MS);
 
     httpServer = Bun.serve({
-      port: 8888,
+      port: 45981,
       hostname: "127.0.0.1",
       fetch(req) {
         const url = new URL(req.url);
@@ -47,7 +47,7 @@ export async function runAuth() {
         const error = url.searchParams.get("error");
         if (error) {
           clearTimeout(timeout);
-          httpServer.stop();
+          httpServer.stop(true);
           reject(new Error(`Authorization failed: ${error}`));
           return new Response(`Authorization failed: ${error}`, { status: 400 });
         }
@@ -55,7 +55,7 @@ export async function runAuth() {
         const authCode = url.searchParams.get("code");
         if (!authCode) {
           clearTimeout(timeout);
-          httpServer.stop();
+          httpServer.stop(true);
           reject(new Error("Missing authorization code"));
           return new Response("Missing authorization code", { status: 400 });
         }
@@ -70,7 +70,7 @@ export async function runAuth() {
       },
     });
 
-    console.error("Waiting for authorization callback on port 8888...");
+    console.error("Waiting for authorization callback on port 45981...");
   });
 
   console.error("\nExchanging code for tokens...");
