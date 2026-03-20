@@ -45,10 +45,23 @@ jobs:
             bun build --compile --minify --target=$target src/index.ts --outfile "dist/$name"
           done
 
+      - name: Extract changelog for current version
+        if: steps.check.outputs.exists == 'false'
+        id: changelog
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          # Strip leading 'v' to match CHANGELOG.md headers
+          SEMVER="${VERSION#v}"
+          # Extract the section for this version (between ## $SEMVER and the next ## heading)
+          BODY=$(awk "/^## ${SEMVER}\$/{found=1; next} /^## /{if(found) exit} found{print}" CHANGELOG.md)
+          echo "body<<CHANGELOG_EOF" >> "$GITHUB_OUTPUT"
+          echo "$BODY" >> "$GITHUB_OUTPUT"
+          echo "CHANGELOG_EOF" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         if: steps.check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.check.outputs.version }}
           files: dist/*
-          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.body }}
