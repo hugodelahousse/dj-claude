@@ -1,5 +1,12 @@
 # dj-claude
 
+## 0.1.3
+
+### Patch Changes
+
+- e7a725f: Guard top-level runAuth() with import.meta.main to prevent double execution in binary
+- 8a9cb5e: Force-close auth callback server to prevent EADDRINUSE on subsequent runs
+
 ## 0.1.2
 
 ### Patch Changes
