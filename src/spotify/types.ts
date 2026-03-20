@@ -58,6 +58,20 @@ export const QueueResponseSchema = z.object({
 });
 export type QueueResponse = z.infer<typeof QueueResponseSchema>;
 
+export const SavedTrackSchema = z.object({
+  added_at: z.string(),
+  track: SpotifyTrackSchema,
+});
+export type SavedTrack = z.infer<typeof SavedTrackSchema>;
+
+export const SavedTracksResponseSchema = z.object({
+  items: z.array(SavedTrackSchema),
+  total: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+});
+export type SavedTracksResponse = z.infer<typeof SavedTracksResponseSchema>;
+
 export const PlaylistSchema = z.object({
   id: z.string(),
   name: z.string(),
