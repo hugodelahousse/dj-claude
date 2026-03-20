@@ -30,7 +30,7 @@ export async function runAuth() {
     let httpServer: ReturnType<typeof Bun.serve>;
 
     const timeout = setTimeout(() => {
-      httpServer?.stop();
+      httpServer?.stop(true);
       reject(new Error("Authorization timed out after 5 minutes. Please try again."));
     }, AUTH_TIMEOUT_MS);
 
@@ -47,7 +47,7 @@ export async function runAuth() {
         const error = url.searchParams.get("error");
         if (error) {
           clearTimeout(timeout);
-          httpServer.stop();
+          httpServer.stop(true);
           reject(new Error(`Authorization failed: ${error}`));
           return new Response(`Authorization failed: ${error}`, { status: 400 });
         }
@@ -55,7 +55,7 @@ export async function runAuth() {
         const authCode = url.searchParams.get("code");
         if (!authCode) {
           clearTimeout(timeout);
-          httpServer.stop();
+          httpServer.stop(true);
           reject(new Error("Missing authorization code"));
           return new Response("Missing authorization code", { status: 400 });
         }
