@@ -1,5 +1,12 @@
 # dj-claude
 
+## 0.2.0
+
+### Minor Changes
+
+- 3636c0c: Allow overriding the Spotify client ID via SPOTIFY_CLIENT_ID environment variable.
+- 18e05dc: Add liked songs support via "liked" playlist_id in get_playlists and modify_playlist tools. Add user-library-read, user-library-modify, and user-read-currently-playing OAuth scopes.
+
 ## 0.1.3
 
 ### Patch Changes
