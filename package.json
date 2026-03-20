@@ -1,6 +1,6 @@
 {
   "name": "dj-claude",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Spotify MCP server for music discovery and playback control",
   "license": "MIT",
