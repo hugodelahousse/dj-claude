@@ -1,42 +1,53 @@
 name: Release
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - target: bun-darwin-arm64
-            name: dj-claude-darwin-arm64
-          - target: bun-darwin-x64
-            name: dj-claude-darwin-x64
-          - target: bun-linux-x64
-            name: dj-claude-linux-x64
-          - target: bun-linux-arm64
-            name: dj-claude-linux-arm64
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
-      - run: bun build --compile --minify --target=${{ matrix.target }} src/index.ts --outfile ${{ matrix.name }}
-      - uses: actions/upload-artifact@v5
-        with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v5
-      - run: |
-          mkdir -p dist
-          for d in dj-claude-*/; do cp "$d"* dist/; done
-      - uses: softprops/action-gh-release@v2
+      - uses: changesets/action@v1
+        id: changesets
         with:
+          version: bunx @changesets/cli version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if release needed
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        id: check
+        run: |
+          VERSION="v$(jq -r .version package.json)"
+          if gh release view "$VERSION" &>/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build binaries
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          mkdir -p dist
+          for target in bun-darwin-arm64 bun-darwin-x64 bun-linux-x64 bun-linux-arm64; do
+            name="dj-claude-${target#bun-}"
+            bun build --compile --minify --target=$target src/index.ts --outfile "dist/$name"
+          done
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.check.outputs.version }}
           files: dist/*
+          generate_release_notes: true
