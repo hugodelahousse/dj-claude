@@ -8,12 +8,9 @@ Spotify MCP server for music discovery and playback control through Claude Code.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/hugodelahousse/dj-claude/main/install.sh | sh
+dj-claude auth                      # Log in with Spotify
+claude mcp add dj-claude -- dj-claude  # Register as MCP server
 ```
-
-## Setup
-
-1. `dj-claude auth` — Log in with Spotify
-2. `claude mcp add dj-claude -- dj-claude`
 
 ## Examples
 
