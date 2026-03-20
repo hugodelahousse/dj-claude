@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { SpotifyClient } from "../spotify/client.js";
-import { PlaylistSchema, PlaylistsResponseSchema, UserProfileSchema } from "../spotify/types.js";
+import { PlaylistSchema, PlaylistsResponseSchema, UserProfileSchema, SavedTracksResponseSchema, SavedTracksContainsSchema } from "../spotify/types.js";
 import { textResult, registerTool } from "./helpers.js";
 
 export function registerPlaylistTools(server: McpServer, client: SpotifyClient) {
@@ -72,6 +72,62 @@ export function registerPlaylistTools(server: McpServer, client: SpotifyClient) 
         tracks: uris.map((uri) => ({ uri })),
       });
       return textResult(`Removed ${uris.length} track(s) from playlist.`);
+    },
+  );
+
+  registerTool(server,
+    "get_liked_songs",
+    "Get the user's liked (saved) songs, with pagination support.",
+    {
+      limit: z.number().min(1).max(50).default(20).describe("Number of tracks to return"),
+      offset: z.number().min(0).default(0).describe("Offset for pagination"),
+    },
+    async ({ limit, offset }: { limit: number; offset: number }) => {
+      const res = await client.get(`/me/tracks?limit=${limit}&offset=${offset}`, SavedTracksResponseSchema);
+      if (!res || res.items.length === 0) {
+        return textResult("No liked songs found.");
+      }
+      const header = `Liked Songs (${res.offset + 1}–${res.offset + res.items.length} of ${res.total})`;
+      const tracks = res.items.map((item, i) => {
+        const t = item.track;
+        return `${res.offset + i + 1}. "${t.name}" by ${t.artists.map((a) => a.name).join(", ")} — ${t.uri}`;
+      });
+      return textResult(header + "\n" + tracks.join("\n"));
+    },
+  );
+
+  registerTool(server,
+    "save_liked_songs",
+    "Save (like) one or more tracks to the user's library.",
+    {
+      track_ids: z.array(z.string()).describe("Spotify track IDs to save (not URIs — just the ID part)"),
+    },
+    async ({ track_ids }: { track_ids: string[] }) => {
+      if (track_ids.length === 0) return textResult("No track IDs provided.");
+      // Check which are already saved
+      const checks = await client.get(`/me/tracks/contains?ids=${track_ids.join(",")}`, SavedTracksContainsSchema);
+      const toSave = checks ? track_ids.filter((_, i) => !checks[i]) : track_ids;
+      if (toSave.length === 0) {
+        return textResult("All tracks are already in your liked songs.");
+      }
+      await client.put("/me/tracks", { ids: toSave });
+      const skipped = track_ids.length - toSave.length;
+      const lines = [`Saved ${toSave.length} track(s) to liked songs.`];
+      if (skipped > 0) lines.push(`${skipped} track(s) already liked.`);
+      return textResult(lines.join("\n"));
+    },
+  );
+
+  registerTool(server,
+    "remove_liked_songs",
+    "Remove (unlike) one or more tracks from the user's library.",
+    {
+      track_ids: z.array(z.string()).describe("Spotify track IDs to remove (not URIs — just the ID part)"),
+    },
+    async ({ track_ids }: { track_ids: string[] }) => {
+      if (track_ids.length === 0) return textResult("No track IDs provided.");
+      await client.delete(`/me/tracks`, { ids: track_ids });
+      return textResult(`Removed ${track_ids.length} track(s) from liked songs.`);
     },
   );
 }
