@@ -86,3 +86,9 @@ export async function runAuth() {
   console.error("\nTokens saved to ~/.dj-claude/tokens.json");
   console.error("Auth setup complete!");
 }
+
+// Run when executed directly
+runAuth().catch((err) => {
+  console.error(`\nAuth failed: ${err.message}`);
+  process.exit(1);
+});
