@@ -2,8 +2,6 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { z } from "zod";
-import { CLIENT_ID } from "./spotify-auth.js";
-
 const StoredTokensSchema = z.object({
   clientId: z.string(),
   accessToken: z.string(),
@@ -39,8 +37,6 @@ export async function getTokens(): Promise<StoredTokens> {
     throw new Error(`Invalid token file (${TOKEN_PATH}). Delete it and re-run \`dj-claude auth\`.`);
   }
 
-  // Always use the hardcoded client ID
-  result.data.clientId = CLIENT_ID;
   return result.data;
 }
 
