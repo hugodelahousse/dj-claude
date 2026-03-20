@@ -1,10 +1,16 @@
 {
   "name": "dj-claude",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Spotify MCP server for music discovery and playback control",
   "license": "MIT",
-  "keywords": ["spotify", "mcp", "claude", "music", "discovery"],
+  "keywords": [
+    "spotify",
+    "mcp",
+    "claude",
+    "music",
+    "discovery"
+  ],
   "engines": {
     "bun": ">=1.0.0"
   },

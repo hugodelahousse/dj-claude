@@ -1,5 +1,13 @@
 # dj-claude
 
+## 0.1.1
+
+### Patch Changes
+
+- b533e76: Bump GitHub Actions to v5 to fix Node.js 20 deprecation warnings
+- be76c8a: Automate releases via changesets instead of manual tag pushes
+- 70fa89b: Update Spotify client ID and make auth CLI directly executable
+
 ## 0.1.0
 
 ### Minor Changes
